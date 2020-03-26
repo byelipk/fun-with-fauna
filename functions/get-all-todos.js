@@ -22,7 +22,7 @@ exports.handler = async () => {
     }
   } else {
     return {
-      statusCode: 500,
+      statusCode: 200,
       body: JSON.stringify({ todos: data.allTodos.data })
     }
   }
