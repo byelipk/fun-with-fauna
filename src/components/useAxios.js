@@ -49,13 +49,17 @@ const stringify = config => {
 }
 
 const useAxios = (config = {}) => {
+  const shouldTreatConfigAsURL = typeof config === "string"
+
   const [state, dispatch] = useReducer(reducer, initialState)
   const [trigger, setTrigger] = useState(0)
 
   const { response, errors, loading } = state
 
+  // We want react to diff strings, not objects
   const payload = stringify(config)
 
+  // This function never needs to change
   const sendRequest = useCallback(() => {
     setTrigger(trigger => trigger + 1)
   }, [])
@@ -83,10 +87,10 @@ const useAxios = (config = {}) => {
   }, [payload, trigger])
 
   useEffect(() => {
-    if (trigger === initialState.trigger) {
+    if (trigger === initialState.trigger && shouldTreatConfigAsURL) {
       setTrigger(1)
     }
-  }, [trigger])
+  }, [trigger, shouldTreatConfigAsURL])
 
   return [{ response, errors, loading }, sendRequest]
 }
