@@ -3,6 +3,7 @@ import React from "react"
 import Layout from "../components/layout"
 import SEO from "../components/seo"
 import CreateTodoForm from "../components/createTodoForm"
+import Todo from "../components/todo"
 
 import useAllTodosApi from "../components/useAllTodosApi"
 
@@ -21,18 +22,15 @@ const IndexPage = () => {
       <div>
         {loading && <p>Loading...</p>}
 
-        {errors && errors.map(error => (
-          <p>{error.message}</p>
-        ))}
+        {errors && errors.map(error => <p>{error.message}</p>)}
 
         <ul>
-          {todos && todos.map(todo => (
-            <li key={todo._id}>
-              <p>{todo.text}</p>
-              <p>Completed: {todo.completed ? "YES" : "NO"}</p>
-              <button>Complete</button>
-            </li>
-          ))}
+          {todos &&
+            todos.map(todo => (
+              <li key={todo._id}>
+                <Todo {...todo} />
+              </li>
+            ))}
         </ul>
       </div>
     </Layout>
