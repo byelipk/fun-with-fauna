@@ -2,23 +2,26 @@ import React from "react"
 
 import Layout from "../components/layout"
 import SEO from "../components/seo"
+import CreateTodoForm from "../components/createTodoForm"
 
 import useAllTodosApi from "../components/useAllTodosApi"
 
 const IndexPage = () => {
-  const [todos, todoErrors, isLoadingTodos] = useAllTodosApi()
+  const [{ todos, errors, loading }, refetchTodos] = useAllTodosApi()
 
   return (
     <Layout>
-      <SEO title="Home" />
+      <SEO title="Fun With Fauna" />
       <h1>Hi people</h1>
       <p>Welcome to your new TODOS App.</p>
       <p>Now go do todos.</p>
 
-      <div>
-        {isLoadingTodos && <p>Loading...</p>}
+      <CreateTodoForm refetchTodos={refetchTodos} />
 
-        {todoErrors && todoErrors.map(error => (
+      <div>
+        {loading && <p>Loading...</p>}
+
+        {errors && errors.map(error => (
           <p>{error.message}</p>
         ))}
 

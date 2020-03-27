@@ -1,0 +1,29 @@
+.label,
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form {
+  max-width: 300px;
+}
+
+.input {
+  margin: 1rem 0;
+}
+
+.labelText {
+  font-weight: 600;
+}
+
+.errors {
+  padding: 1rem;
+  background: red;
+  color: white
+}
+
+.success {
+  padding: 1rem;
+  background: green;
+  color: white
+}

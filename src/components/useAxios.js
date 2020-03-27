@@ -1,6 +1,6 @@
 import axios from "axios"
 
-import { useReducer, useCallback, useEffect, useState } from "react"
+import { useReducer, useCallback, useEffect } from "react"
 
 const initialState = {
   loading: false,
@@ -12,22 +12,35 @@ const initialState = {
 const reducer = (state, action) => {
   if (action.type === "LOADING") {
     return {
-      ...initialState,
+      ...state,
+      response: null,
+      errors: null,
       loading: true,
     }
   }
 
   if (action.type === "ERRORS") {
     return {
-      ...initialState,
+      ...state,
+      response: null,
       errors: action.errors,
+      loading: false,
     }
   }
 
   if (action.type === "RESPONSE") {
     return {
-      ...initialState,
+      ...state,
       response: action.response,
+      errors: null,
+      loading: false,
+    }
+  }
+
+  if (action.type === "TRIGGER") {
+    return {
+      ...state,
+      trigger: state.trigger + 1,
     }
   }
 
@@ -44,40 +57,49 @@ const stringify = config => {
   } else if (typeof config === "string") {
     return config
   } else {
-    throw new Error("Unable to parse config")
+    return ""
   }
 }
 
-const useAxios = (config = {}) => {
-  const shouldTreatConfigAsURL = typeof config === "string"
+const useAxios = config => {
+  const shouldTreatConfigAsString = typeof config === "string"
+
+  if (shouldTreatConfigAsString) {
+    config = {
+      url: config,
+    }
+  }
 
   const [state, dispatch] = useReducer(reducer, initialState)
-  const [trigger, setTrigger] = useState(0)
 
-  const { response, errors, loading } = state
+  const { trigger, response, errors, loading } = state
 
-  // We want react to diff strings, not objects
+  // We want react to diff primitive values, not objects
   const payload = stringify(config)
 
   // This function never needs to change
   const sendRequest = useCallback(() => {
-    setTrigger(trigger => trigger + 1)
+    dispatch({ type: "TRIGGER" })
   }, [])
 
   useEffect(() => {
-    if (!payload || !trigger) return
 
-    let axiosConfig = null
+    // If there's no request to make,
+    // or our own internal trigger is falsey, bail.
+    if (!payload) return
+    if (!trigger) return
 
-    try {
-      axiosConfig = JSON.parse(payload)
-    } catch (error) {
-      axiosConfig = payload
+    // `payload` will be a JSON string
+    const requestData = JSON.parse(payload)
+
+    // Bail if for some reason there is no request data
+    if (!requestData) {
+      return
     }
 
     dispatch({ type: "LOADING" })
 
-    axios(axiosConfig)
+    axios(requestData)
       .then(response => {
         dispatch({ type: "RESPONSE", response })
       })
@@ -87,10 +109,13 @@ const useAxios = (config = {}) => {
   }, [payload, trigger])
 
   useEffect(() => {
-    if (trigger === initialState.trigger && shouldTreatConfigAsURL) {
-      setTrigger(1)
+    // Support triggering an initial request based
+    // on passing in a URL string.
+    if (trigger === initialState.trigger && shouldTreatConfigAsString) {
+      console.log("Triggering auto request...", trigger, shouldTreatConfigAsString)
+      dispatch({ type: "TRIGGER" })
     }
-  }, [trigger, shouldTreatConfigAsURL])
+  }, [trigger, shouldTreatConfigAsString])
 
   return [{ response, errors, loading }, sendRequest]
 }
