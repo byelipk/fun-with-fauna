@@ -65,6 +65,8 @@ const CreateTodoForm = ({ refetchTodos }) => {
   const [{ todo, errors, loading }, createTodo] = useCreateTodoApi(text)
 
   const handleSubmit = e => {
+    console.log(e)
+
     e.preventDefault()
 
     if (formIsValid) {

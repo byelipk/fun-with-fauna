@@ -78,7 +78,7 @@ const useAxios = config => {
   const payload = stringify(config)
 
   // This function never needs to change
-  const sendRequest = useCallback(() => {
+  const triggerRequest = useCallback(() => {
     dispatch({ type: "TRIGGER" })
   }, [])
 
@@ -112,12 +112,11 @@ const useAxios = config => {
     // Support triggering an initial request based
     // on passing in a URL string.
     if (trigger === initialState.trigger && shouldTreatConfigAsString) {
-      console.log("Triggering auto request...", trigger, shouldTreatConfigAsString)
-      dispatch({ type: "TRIGGER" })
+      triggerRequest()
     }
-  }, [trigger, shouldTreatConfigAsString])
+  }, [trigger, shouldTreatConfigAsString, triggerRequest])
 
-  return [{ response, errors, loading }, sendRequest]
+  return [{ response, errors, loading }, triggerRequest]
 }
 
 export default useAxios
