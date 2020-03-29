@@ -50,7 +50,7 @@ const reducer = (state, action) => {
 }
 
 const CreateTodoForm = () => {
-  const { refetchTodos } = useContext(TodosContext)
+  const { setTodos, refetchTodos } = useContext(TodosContext)
 
   const [formState, dispatch] = useReducer(reducer, initialState)
 
@@ -68,6 +68,8 @@ const CreateTodoForm = () => {
 
   const [{ todo, errors, loading }, createTodo] = useCreateTodoApi(text)
 
+  // BUG: Sometimes the submit event is fire when we type into the form.
+  // Probably a bug in `useCreateTodoApi`.
   const handleSubmit = e => {
     e.preventDefault()
 
@@ -79,7 +81,8 @@ const CreateTodoForm = () => {
   useEffect(() => {
     const handleSuccess = () => {
       dispatch({ type: "SUCCESS" })
-      refetchTodos()
+      setTodos(todos => [todo, ...todos])
+      // refetchTodos()
     }
 
     const handleErrors = () => {
@@ -93,7 +96,7 @@ const CreateTodoForm = () => {
     if (errors) {
       handleErrors()
     }
-  }, [todo, errors, refetchTodos])
+  }, [todo, errors, setTodos])
 
   return (
     <>
