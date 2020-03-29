@@ -5,6 +5,7 @@ const GET_ALL_TODOS = `
     allTodos {
       data {
         _id
+        _ts
         text
         completed
       }

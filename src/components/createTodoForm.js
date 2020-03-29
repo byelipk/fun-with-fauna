@@ -1,7 +1,9 @@
-import React, { useReducer, useEffect } from "react"
+import React, { useReducer, useEffect, useContext } from "react"
 import useCreateTodoApi from "./useCreateTodoApi"
 
 import _styles from "./create-todo-form.module.css"
+
+import { TodosContext } from "../components/todosContext"
 
 const initialState = {
   text: "",
@@ -22,7 +24,7 @@ const reducer = (state, action) => {
       ...state,
       isSuccess: false,
       isError: false,
-      text: ""
+      text: "",
     }
   }
 
@@ -31,7 +33,7 @@ const reducer = (state, action) => {
       ...state,
       isSuccess: true,
       isError: false,
-      text: ""
+      text: "",
     }
   }
 
@@ -40,14 +42,16 @@ const reducer = (state, action) => {
       ...state,
       isSuccess: false,
       isError: true,
-      text: ""
+      text: "",
     }
   }
 
   return state
 }
 
-const CreateTodoForm = ({ refetchTodos }) => {
+const CreateTodoForm = () => {
+  const { refetchTodos } = useContext(TodosContext)
+
   const [formState, dispatch] = useReducer(reducer, initialState)
 
   const { text, isSuccess, isError } = formState
@@ -65,8 +69,6 @@ const CreateTodoForm = ({ refetchTodos }) => {
   const [{ todo, errors, loading }, createTodo] = useCreateTodoApi(text)
 
   const handleSubmit = e => {
-    console.log(e)
-
     e.preventDefault()
 
     if (formIsValid) {
@@ -75,12 +77,11 @@ const CreateTodoForm = ({ refetchTodos }) => {
   }
 
   useEffect(() => {
-
     const handleSuccess = () => {
       dispatch({ type: "SUCCESS" })
       refetchTodos()
     }
-  
+
     const handleErrors = () => {
       dispatch({ type: "ERROR" })
     }

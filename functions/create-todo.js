@@ -4,9 +4,10 @@ const CREATE_TODO = `
   mutation($text: String!) {
     createTodo(data: {
       text: $text, 
-      completed: false
+      completed: false,
     }) {
       _id
+      _ts
       text
       completed
     }
