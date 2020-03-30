@@ -7,11 +7,14 @@ const useAllTodosApi = () => {
 
   const todos = (response && response.data.todos) || []
 
-  return [{ 
-    todos,
-    errors, 
-    loading 
-  }, refetchTodos]
+  return [
+    {
+      todos,
+      errors,
+      loading,
+    },
+    refetchTodos,
+  ]
 }
 
 export default useAllTodosApi

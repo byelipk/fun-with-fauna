@@ -1,4 +1,6 @@
-import React, { createContext, useState, useEffect, useRef } from "react"
+import React, { createContext, useState, useEffect } from "react"
+
+import usePrevious from "./usePrevious"
 
 import useAllTodosApi from "./useAllTodosApi"
 
@@ -23,23 +25,21 @@ export const TodosProvider = ({ children }) => {
   const lastTodo = sortedTodos[0] || {}
   const lastTodoTs = lastTodo._ts || null
 
-  const prevLastTodoTs = useRef(null)
+  const prevLastTodoTs = usePrevious(lastTodoTs)
 
   // Our managed todo state
   const [todos, setTodos] = useState([])
 
+  useEffect(() => {
+    refetchTodos()
+  }, [])
+
   // Always provide the newest list of todos to consumers of this context.
   // Handle dependency checking manually.
   useEffect(() => {
-    if (lastTodoTs > prevLastTodoTs.current) {
+    if (lastTodoTs > prevLastTodoTs) {
       setTodos(() => sortedTodos)
     }
-  })
-
-  // Re-run after every render so we always 
-  // know when the last todo was created.
-  useEffect(() => {
-    prevLastTodoTs.current = lastTodoTs
   })
 
   const value = {

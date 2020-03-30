@@ -14,14 +14,14 @@ const initialState = {
 const reducer = (state, action) => {
   if (action.type === "TYPE") {
     return {
-      ...state,
+      isSuccess: false,
+      isError: false,
       text: action.payload.text,
     }
   }
 
   if (action.type === "RESET") {
     return {
-      ...state,
       isSuccess: false,
       isError: false,
       text: "",
@@ -30,7 +30,6 @@ const reducer = (state, action) => {
 
   if (action.type === "SUCCESS") {
     return {
-      ...state,
       isSuccess: true,
       isError: false,
       text: "",
@@ -39,7 +38,6 @@ const reducer = (state, action) => {
 
   if (action.type === "ERROR") {
     return {
-      ...state,
       isSuccess: false,
       isError: true,
       text: "",
@@ -50,11 +48,13 @@ const reducer = (state, action) => {
 }
 
 const CreateTodoForm = () => {
-  const { setTodos, refetchTodos } = useContext(TodosContext)
+  const { refetchTodos } = useContext(TodosContext)
 
   const [formState, dispatch] = useReducer(reducer, initialState)
 
   const { text, isSuccess, isError } = formState
+
+  const [{ newTodo, errors, loading }, createTodo] = useCreateTodoApi(text)
 
   const handleChange = e => {
     dispatch({ type: "TYPE", payload: { text: e.target.value } })
@@ -64,14 +64,10 @@ const CreateTodoForm = () => {
     dispatch({ type: "RESET" })
   }
 
-  const formIsValid = text && text.length > 0
-
-  const [{ todo, errors, loading }, createTodo] = useCreateTodoApi(text)
-
-  // BUG: Sometimes the submit event is fire when we type into the form.
-  // Probably a bug in `useCreateTodoApi`.
   const handleSubmit = e => {
     e.preventDefault()
+
+    const formIsValid = text && text.length > 0
 
     if (formIsValid) {
       createTodo()
@@ -79,24 +75,15 @@ const CreateTodoForm = () => {
   }
 
   useEffect(() => {
-    const handleSuccess = () => {
+    if (Boolean(newTodo)) {
+      refetchTodos()
       dispatch({ type: "SUCCESS" })
-      setTodos(todos => [todo, ...todos])
-      // refetchTodos()
-    }
-
-    const handleErrors = () => {
+    } 
+    
+    if (Boolean(errors)) {
       dispatch({ type: "ERROR" })
     }
-
-    if (todo) {
-      handleSuccess()
-    }
-
-    if (errors) {
-      handleErrors()
-    }
-  }, [todo, errors, setTodos])
+  }, [newTodo, errors, refetchTodos])
 
   return (
     <>
